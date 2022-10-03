@@ -4,7 +4,7 @@
 - Fall 2022
 - Lab 3 - Message Encoding
 - Names: Josh Sopa & Hudson Arney
-  - 
+  - BIG FART
   - 
 
 A simple TCP server/client pair.
