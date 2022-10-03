@@ -1,9 +1,9 @@
 """
 - NOTE: REPLACE 'N' Below with your section, year, and lab number
-- CS2911 - 0NN
-- Fall 202N
-- Lab N
-- Names:
+- CS2911 - 011
+- Fall 2022
+- Lab 3 - Message Encoding
+- Names: Josh Sopa & Hudson Arney
   - 
   - 
 
