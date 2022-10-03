@@ -145,6 +145,7 @@ def tcp_receive(listen_port):
     (data_socket, sender_address) = listen_socket.accept()
 
     accept_decline = b'A'
+    message_number = 0
     while accept_decline == b'A':
         #recieve data
         #get number of lines
@@ -156,6 +157,7 @@ def tcp_receive(listen_port):
         #Size of message > 0
         if int.from_bytes(data, 'big') > 0:
             message_data = ''
+            message_number += 1
             #get message data and stor in message_data
             line = 0
             while line < num_lines:
@@ -165,6 +167,7 @@ def tcp_receive(listen_port):
                 message_data += data.decode('ASCII')
 
             print(message_data)
+            create_file(message_data, message_number)
             #accept another message
             accept_decline = b'A'
         else:
@@ -178,7 +181,11 @@ def tcp_receive(listen_port):
     listen_socket.close()
 
 
-# Add more methods here (Delete this line)
+def create_file(message, number):
+    number = str(number)
+    text_file = open(number+".txt", "w")
+    text_file.write(message)
+    text_file.close()
 
 
 def next_byte(data_socket):
