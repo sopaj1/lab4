@@ -35,7 +35,7 @@ import time
 
 # Port number definitions
 # (May have to be adjusted if they collide with ports in use by other programs/services.)
-TCP_PORT = 12100
+TCP_PORT = 12109
 
 # Address to listen on when acting as server.
 # The address '' means accept any connection for our 'receive' port from any network interface
@@ -98,6 +98,7 @@ def tcp_send(server_host, server_port):
         for line_num in range(0, num_lines):
             line = input('')
             tcp_socket.sendall(line.encode() + b'\n')
+        tcp_socket.sendall(b'')
 
         print('Done sending. Awaiting reply.')
         response = tcp_socket.recv(1)
@@ -112,10 +113,11 @@ def tcp_send(server_host, server_port):
     time.sleep(1)  # Just to mess with your servers. :-)  Your code should work with this line here.
     tcp_socket.sendall(b'\x00\x00')
     response = tcp_socket.recv(1)
+    #print(response)
     if response == b'Q':  # Reminder: == in Python is like .equals in Java
         print('Server closing connection, as expected.')
     else:
-        print('Unexpected response:', response)
+        print('Unexpected response:', respoanse)
 
     tcp_socket.close()
 
@@ -141,8 +143,39 @@ def tcp_receive(listen_port):
     #listening
     listen_socket.listen(1)
     (data_socket, sender_address) = listen_socket.accept()
-    #recieve data
-    data = data_socket.recv(response_size)
+
+    accept_decline = b'A'
+    while accept_decline == b'A':
+        #recieve data
+        #get number of lines
+        data = next_byte(data_socket)
+        for lines in range(0,3):
+            data += next_byte(data_socket)
+        num_lines = int.from_bytes(data, 'big')
+
+        #Size of message > 0
+        if int.from_bytes(data, 'big') > 0:
+            message_data = ''
+            #get message data and stor in message_data
+            line = 0
+            while line < num_lines:
+                data = next_byte(data_socket)
+                if data == b'\n':
+                    line += 1
+                message_data += data.decode('ASCII')
+
+            print(message_data)
+            #accept another message
+            accept_decline = b'A'
+        else:
+            #closing socket
+            accept_decline = b'Q'
+
+        #talk back to server
+        data_socket.sendall(accept_decline)
+
+    data_socket.close()
+    listen_socket.close()
 
 
 # Add more methods here (Delete this line)
