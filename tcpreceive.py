@@ -45,7 +45,7 @@ import time
 
 # Port number definitions
 # (May have to be adjusted if they collide with ports in use by other programs/services.)
-TCP_PORT = 12109
+TCP_PORT = 12111
 
 # Address to listen on when acting as server.
 # The address '' means accept any connection for our 'receive' port from any network interface
@@ -83,6 +83,7 @@ def tcp_send(server_host, server_port):
     
     :param str server_host: name of the server host machine
     :param int server_port: port number on server to send to
+    - Author: Hudson and Josh
     """
     print('tcp_send: dst_host="{0}", dst_port={1}'.format(server_host, server_port))
     tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -144,6 +145,8 @@ def tcp_receive(listen_port):
     - Close data connection.
    
     :param int listen_port: Port number on the server to listen on
+
+    -Author Josh Sopa
     """
 
     print('tcp_receive (server): listen_port={0}'.format(listen_port))
@@ -154,10 +157,22 @@ def tcp_receive(listen_port):
     listen_socket.listen(1)
     (data_socket, sender_address) = listen_socket.accept()
 
+    parse_bytes(data_socket)
+
+    data_socket.close()
+    listen_socket.close()
+
+
+def parse_bytes(data_socket):
+    """
+    Parses the bytes after recieving a message
+    :param data_socket: the data socket to read bytes off of
+    Author- Josh sopa
+    """
     accept_decline = b'A'
     message_number = 0
     while accept_decline == b'A':
-        # recieve data
+
         # get number of lines
         data = next_byte(data_socket)
         for lines in range(0, 3):
@@ -166,7 +181,7 @@ def tcp_receive(listen_port):
 
         # Size of message > 0
         if int.from_bytes(data, 'big') > 0:
-            message_data = ''
+            message_data = b''
             message_number += 1
             # get message data and stor in message_data
             line = 0
@@ -174,7 +189,7 @@ def tcp_receive(listen_port):
                 data = next_byte(data_socket)
                 if data == b'\n':
                     line += 1
-                message_data += data.decode('ASCII')
+                message_data += data
 
             print(message_data)
             create_file(message_data, message_number)
@@ -187,13 +202,16 @@ def tcp_receive(listen_port):
         # talk back to server
         data_socket.sendall(accept_decline)
 
-    data_socket.close()
-    listen_socket.close()
-
 
 def create_file(message, number):
+    """
+    Create a text file given a bytes and int parameter
+    :param message: The message in bytes that is being put in a text file
+    :param number: The number to be assigned the name of the text file
+    -Author Hudson Arney
+    """
     number = str(number)
-    text_file = open(number+".txt", "w")
+    text_file = open(number+".txt", "wb")
     text_file.write(message)
     text_file.close()
 
