@@ -4,12 +4,12 @@
 - Fall 2022
 - Lab 3 - Message Encoding
 - Names: Josh Sopa & Hudson Arney
-  - BIG FART
   - 
 
 A simple TCP server/client pair.
 
-The application protocol is a simple format: For each file uploaded, the client first sends four (big-endian) bytes indicating the number of lines as an unsigned binary number.
+The application protocol is a simple format: For each file uploaded,
+the client first sends four (big-endian) bytes indicating the number of lines as an unsigned binary number.
 
 The client then sends each of the lines, terminated only by '\\n' (an ASCII LF byte).
 
@@ -19,12 +19,22 @@ Then the client can send the next file.
 
 
 Introduction: (Describe the lab in your own words)
+    - Our lab works to receive and send TCP messages through the given TCP port number.
+    We use sockets in the receive method that first listen for a message, and wait to grab the message.
+    Then the send method works to also create a socket and connect that to the server being provided.
+    Once connect it gives the option of the amount of messages the user would like to send. The user
+    can then send whatever messages they'd like to the receiver. The receiver will take this message data
+    in bytes and send it to the create text file method where depending on the number of messages inputted it
+    will create that certain number of text files with the messages inside.
 
-
-
-
-Summary: (Summarize your experience with the lab, what you learned, what you liked, what you disliked, and any suggestions you have for improvement)
-
+Summary: (Summarize your experience with the lab, what you learned, what you liked, what you disliked,
+and any suggestions you have for improvement)
+    - This lab had a fair bit of challenge which was good, but still fun to code. We learned a lot about
+    how TCP messaging works and how to send a receive such messages between computers. We liked that
+    the lab was a fair but decent challenge which made the work having a good feeling of pay off once completed.
+    We disliked going back and changing code in case a message being sent was something other than ASCII.
+    Some suggestions we have wouldn't necessarily be for the lab itself but on the lectures leading up
+    to this lab where our understanding of sending messages didn't feel completely fulfilled.
 
 
 
@@ -113,11 +123,11 @@ def tcp_send(server_host, server_port):
     time.sleep(1)  # Just to mess with your servers. :-)  Your code should work with this line here.
     tcp_socket.sendall(b'\x00\x00')
     response = tcp_socket.recv(1)
-    #print(response)
+    # print(response)
     if response == b'Q':  # Reminder: == in Python is like .equals in Java
         print('Server closing connection, as expected.')
     else:
-        print('Unexpected response:', respoanse)
+        print('Unexpected response:', response)
 
     tcp_socket.close()
 
@@ -137,28 +147,28 @@ def tcp_receive(listen_port):
     """
 
     print('tcp_receive (server): listen_port={0}'.format(listen_port))
-    #create server to listen
+    # create server to listen
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listen_socket.bind((LISTEN_ON_INTERFACE, listen_port))
-    #listening
+    # listening
     listen_socket.listen(1)
     (data_socket, sender_address) = listen_socket.accept()
 
     accept_decline = b'A'
     message_number = 0
     while accept_decline == b'A':
-        #recieve data
-        #get number of lines
+        # recieve data
+        # get number of lines
         data = next_byte(data_socket)
-        for lines in range(0,3):
+        for lines in range(0, 3):
             data += next_byte(data_socket)
         num_lines = int.from_bytes(data, 'big')
 
-        #Size of message > 0
+        # Size of message > 0
         if int.from_bytes(data, 'big') > 0:
             message_data = ''
             message_number += 1
-            #get message data and stor in message_data
+            # get message data and stor in message_data
             line = 0
             while line < num_lines:
                 data = next_byte(data_socket)
@@ -168,13 +178,13 @@ def tcp_receive(listen_port):
 
             print(message_data)
             create_file(message_data, message_number)
-            #accept another message
+            # accept another message
             accept_decline = b'A'
         else:
-            #closing socket
+            # closing socket
             accept_decline = b'Q'
 
-        #talk back to server
+        # talk back to server
         data_socket.sendall(accept_decline)
 
     data_socket.close()
